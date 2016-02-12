@@ -1,0 +1,35 @@
+!SESSION 2016-02-10 19:14:06.018 -----------------------------------------------
+eclipse.buildId=4.4.2.M20150204-1700
+java.version=1.7.0_85
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.cpp.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -product org.eclipse.epp.package.cpp.product -data /home/azec/ciaa-ide/wsSistemasOperativos/workspace
+
+!ENTRY org.eclipse.core.resources 4 77 2016-02-10 19:15:21.915
+!MESSAGE Invalid project description.
+!SUBENTRY 1 unknown 0 0 2016-02-10 19:15:21.915
+!MESSAGE OK
+!SUBENTRY 1 org.eclipse.core.resources 4 77 2016-02-10 19:15:21.915
+!MESSAGE /home/azec/ciaa-ide/wsSistemasOperativos/workspace overlaps the workspace location: /home/azec/ciaa-ide/wsSistemasOperativos/workspace
+!SESSION 2016-02-10 19:17:03.667 -----------------------------------------------
+eclipse.buildId=4.4.2.M20150204-1700
+java.version=1.7.0_85
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.cpp.product
+Command-line arguments:  -os linux -ws gtk -arch x86_64 -product org.eclipse.epp.package.cpp.product -data /home/azec/ciaa-ide/wsSistemasOperativos/workspace
+
+!ENTRY org.eclipse.core.resources 4 77 2016-02-10 19:23:00.127
+!MESSAGE Invalid project description.
+!SUBENTRY 1 unknown 0 0 2016-02-10 19:23:00.127
+!MESSAGE OK
+!SUBENTRY 1 org.eclipse.core.resources 4 77 2016-02-10 19:23:00.127
+!MESSAGE /home/azec/ciaa-ide/wsSistemasOperativos/workspace overlaps the workspace location: /home/azec/ciaa-ide/wsSistemasOperativos/workspace
+
+!ENTRY org.eclipse.core.resources 4 77 2016-02-10 19:24:44.088
+!MESSAGE Invalid project description.
+!SUBENTRY 1 unknown 0 0 2016-02-10 19:24:44.089
+!MESSAGE OK
+!SUBENTRY 1 org.eclipse.core.resources 4 77 2016-02-10 19:24:44.089
+!MESSAGE /home/azec/ciaa-ide/wsSistemasOperativos/workspace overlaps the workspace location: /home/azec/ciaa-ide/wsSistemasOperativos/workspace
