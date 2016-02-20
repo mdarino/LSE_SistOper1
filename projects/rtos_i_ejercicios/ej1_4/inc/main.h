@@ -31,86 +31,39 @@
  *
  */
 
-/*************************************************************************//**
+#ifndef _MAIN_H_
+#define _MAIN_H_
 
-  @file     ej1_1.c
-
-  @brief    EJERCICIO 1.1 - RTOS 1
-
-  @author   Marcos Darino (MD)
-
- ******************************************************************************/
-
-/**
-	Ejercicio​ 1.1
-	Implementar una tarea que encienda un LED durante 500ms cada 1 seg. 
-**/
-
-
-/** \addtogroup rtos_blink FreeRTOS Ejer1.1
+/** \addtogroup rtos_blink FreeRTOS blink example
  ** @{ */
 
 /*==================[inclusions]=============================================*/
 
-#include "../../../rtos_i_ejercicios/ej1_1/inc/main.h"
+/*==================[cplusplus]==============================================*/
 
-#include "../../../rtos_i_ejercicios/ej1_1/inc/FreeRTOSConfig.h"
-#include "ciaaIO.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include "FreeRTOS.h"
-#include "task.h"
+/*==================[macros]=================================================*/
 
+/*==================[typedef]================================================*/
 
-/*==================[macros and definitions]=================================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[internal functions declaration]=========================*/
-
-/** @brief hardware initialization function
- *	@return none
+/** @brief main function
+ * @return main function should never return
  */
-static void initHardware(void);
+int main(void);
 
-/*==================[internal data definition]===============================*/
+/*==================[cplusplus]==============================================*/
 
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-static void initHardware(void)
-{
-    SystemCoreClockUpdate();
-
-    Board_Init();
-
-    ciaaIOInit();
-
-    ciaaWriteOutput(0, 0);
+#ifdef __cplusplus
 }
-
-static void task(void * a)
-{
-	while (1) {
-		ciaaToggleOutput(0);
-		vTaskDelay(500 / portTICK_RATE_MS);  
-	}
-}
-
-/*==================[external functions definition]==========================*/
-
-int main(void)
-{
-	initHardware();
-
-	xTaskCreate(task, (const char *)"task", configMINIMAL_STACK_SIZE*2, 0, tskIDLE_PRIORITY+1, 0);
-
-	vTaskStartScheduler();
-
-	while (1) {
-	}
-}
+#endif
 
 /** @} doxygen end group definition */
-
 /*==================[end of file]============================================*/
+#endif /* #ifndef _MAIN_H_ */

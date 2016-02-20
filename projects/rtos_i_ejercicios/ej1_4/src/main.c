@@ -1,4 +1,5 @@
-/* Copyright 2015, Pablo Ridolfi
+/*Copyright 2015, Pablo Ridolfi 
+ *Copyright 2015, Marcos Darino
  * All rights reserved.
  *
  * This file is part of lpc1769_template.
@@ -31,23 +32,38 @@
  *
  */
 
+
 /*************************************************************************//**
 
-  @file     ej1_1.c
+  @file     ej1_4.c
 
-  @brief    EJERCICIO 1.1 - RTOS 1
+  @brief    EJERCICIO 1.4 - RTOS 1
 
   @author   Marcos Darino (MD)
 
  ******************************************************************************/
 
+
 /**
-	Ejercicio​ 1.1
-	Implementar una tarea que encienda un LED durante 500ms cada 1 seg. 
-**/
+
+ EJERCICIO 1.4    (Spanish)
+
+ Escribir un programa con dos tareas: 
+ 
+  ∙ Una tarea medirá el tiempo de pulsación de un botón, aplicando anti­rebote. 
+  ∙ La   otra   destellará   un   led   con   un   período   fijo   de   1   seg,   y   tomando   como   tiempo   de   activación  
+    el último tiempo medido. 
+ 
+ El   tiempo   medido   se   puede   comunicar   entre   tareas   a   través   de   una   variable   global,   protegiendo   sus  
+ operaciones dentro de una sección crítica. 
 
 
-/** \addtogroup rtos_blink FreeRTOS Ejer1.1
+ **/
+
+
+
+
+/** \addtogroup rtos FreeRTOS Ejer1.4
  ** @{ */
 
 /*==================[inclusions]=============================================*/
@@ -62,6 +78,19 @@
 
 
 /*==================[macros and definitions]=================================*/
+    //BUTTONS STATES:
+    #define PRESS   1  ///Buttons is press
+    #define RELEASE 0  ///Buttons is relaese
+    #define TIME_NOT_REBOUND  10 ///Button delay to check the buttons
+    #define TICKS_BUTTON 2 ///How many TIME_NOT_REBOUND is press
+
+typedef struct  STR_Button
+{
+    uint8_t     state;
+    uint16_t    time;
+    uint8_t     number;
+}button_t;
+
 
 /*==================[internal data declaration]==============================*/
 
@@ -76,35 +105,109 @@ static void initHardware(void);
 
 /*==================[external data definition]===============================*/
 
+//Global Variables
+uint16_t  buttonTime=0;  ///Save the button time press in os ticks
+
+
 /*==================[internal functions definition]==========================*/
 
 static void initHardware(void)
 {
+    //Set the system core
     SystemCoreClockUpdate();
-
+    //Init the clock of HW - gpio
     Board_Init();
-
+    //Init the EDU-CIAA HW
     ciaaIOInit();
-
+    //Turn of the LED
     ciaaWriteOutput(0, 0);
 }
 
-static void task(void * a)
+
+
+static void taskReadButton(void * a)
 {
-	while (1) {
-		ciaaToggleOutput(0);
-		vTaskDelay(500 / portTICK_RATE_MS);  
-	}
+	
+   button_t  button;
+   
+   //Init the struct
+   button.number=0;
+   button.state=RELEASE;
+   button.time=0;
+   
+
+
+   while(1)
+   {
+        //Delay
+        vTaskDelay(TIME_NOT_REBOUND/portTICK_RATE_MS); 
+        
+        //check if it is press
+        if (!ciaaReadInput(button.number))
+        {
+            button.time++;
+            if (button.time>65000)
+                button.time=65000;
+            if (button.time>TICKS_BUTTON)
+                button.state=PRESS; 
+
+        }
+        else
+        {
+            button.state=RELEASE;
+            if (button.time>TICKS_BUTTON)
+              {
+                //take the time of press in mseg
+                buttonTime=(button.time-TICKS_BUTTON)*TIME_NOT_REBOUND;
+              }
+            button.time=0;
+            
+        }
+
+        if(button.state==PRESS)
+          {  
+            ciaaWriteOutput(0,1);  //Led RED ON
+          }
+          else
+          {
+            ciaaWriteOutput(0,0);  //Led RED OFF
+          }  
+        
+
+
+   }
+
 }
 
+
+static void taskBlickLed(void * a)
+{
+    while (1) {
+        
+        //Check if the time is zero, if not blink
+        if (buttonTime>0)
+        {
+        ciaaToggleOutput(3);
+        vTaskDelay(buttonTime/ portTICK_RATE_MS);  
+        }
+
+    }
+
+}
 /*==================[external functions definition]==========================*/
 
 int main(void)
 {
+    //Start the HW
 	initHardware();
+    
+    //Create task to read the button
+	xTaskCreate(taskReadButton, (const char *)"taskReadButton", configMINIMAL_STACK_SIZE*2, 0, tskIDLE_PRIORITY+1, 0);
+    
+    //Create task to blick the led
+    xTaskCreate(taskBlickLed, (const char *)"taskReadButton", configMINIMAL_STACK_SIZE*2, 0, tskIDLE_PRIORITY+1, 0);
 
-	xTaskCreate(task, (const char *)"task", configMINIMAL_STACK_SIZE*2, 0, tskIDLE_PRIORITY+1, 0);
-
+    //Start the Scheduler
 	vTaskStartScheduler();
 
 	while (1) {

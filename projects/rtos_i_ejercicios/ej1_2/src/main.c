@@ -1,4 +1,5 @@
 /* Copyright 2015, Pablo Ridolfi
+ * Copyright 2015, Marcos Darino
  * All rights reserved.
  *
  * This file is part of lpc1769_template.
@@ -33,21 +34,24 @@
 
 /*************************************************************************//**
 
-  @file     ej1_1.c
+  @file     ej1_4.c
 
-  @brief    EJERCICIO 1.1 - RTOS 1
+  @brief    EJERCICIO 1.2 - RTOS 1
 
   @author   Marcos Darino (MD)
 
  ******************************************************************************/
 
+
 /**
-	Ejercicio​ 1.1
-	Implementar una tarea que encienda un LED durante 500ms cada 1 seg. 
-**/
+
+ EJERCICIO 1.2    (Spanish)
+	Implementar   una   tarea   que   genere   una   onda   cuadrada   (y   que   encienda   un   LED)   con  
+	periodo de 1 seg y ciclos de actividad incrementándose 100 ms, 200 ms, 300 ms. 
+ **/
 
 
-/** \addtogroup rtos_blink FreeRTOS Ejer1.1
+/** \addtogroup rtos_blink FreeRTOS Ejer1.2
  ** @{ */
 
 /*==================[inclusions]=============================================*/
@@ -91,9 +95,40 @@ static void initHardware(void)
 
 static void task(void * a)
 {
+	//Get the current Tick
+	TickType_t  tickNow = xTaskGetTickCount();
+	//States
+	uint8_t  state=0;
+
 	while (1) {
-		ciaaToggleOutput(0);
-		vTaskDelay(500 / portTICK_RATE_MS);  
+		
+		//Jump to the different states
+		switch(state)
+		{
+			case 0:
+				ciaaWriteOutput(0,1);  //Led ON
+				vTaskDelay(100/portTICK_RATE_MS); //100mseg
+				state++; //jump to the next step
+			break;
+
+			case 1:
+				ciaaWriteOutput(0,1);  //Led ON
+				vTaskDelay(200/portTICK_RATE_MS); //200mseg
+				state++; //jump to the next step
+			break;
+
+			case 2:
+				ciaaWriteOutput(0,1);  //Led ON
+				vTaskDelay(300/portTICK_RATE_MS); //300mseg
+				state=0; //jump to the first step
+			break;
+		}
+
+		ciaaWriteOutput(0,0);  //Led OFF
+		//DelayUntil: Complete the second and update the tickNow
+		vTaskDelayUntil(&tickNow,1000/portTICK_RATE_MS);
+
+
 	}
 }
 
