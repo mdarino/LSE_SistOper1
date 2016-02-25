@@ -1,5 +1,4 @@
 /*Copyright 2015, Pablo Ridolfi 
- *Copyright 2015, Marcos Darino
  * All rights reserved.
  *
  * This file is part of lpc1769_template.
@@ -182,14 +181,20 @@ static void taskReadButton(void * a)
 
 static void taskBlickLed(void * a)
 {
+    
+    TickType_t  tickNow = xTaskGetTickCount();
+
     while (1) {
+        
         
         //Check if the time is zero, if not blink
         if (buttonTime>0)
         {
-        ciaaToggleOutput(3);
-        vTaskDelay(buttonTime/ portTICK_RATE_MS);  
+         ciaaWriteOutput(3,1);  //Led 4 ON
+         vTaskDelay(buttonTime/ portTICK_RATE_MS);
         }
+        ciaaWriteOutput(3,0);  //Led 4 OFF
+        vTaskDelayUntil(&tickNow,1000/portTICK_RATE_MS); 
 
     }
 

@@ -34,7 +34,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # current project
-PROJECT = projects/rtos_i_ejercicios/ej1_3
+PROJECT = projects/rtos_i_ejercicios/ej1_4
 #PROJECT = examples/blinky_rit
 #PROJECT = examples/adc_fir_dac
 #PROJECT = examples/freertos_blinky
