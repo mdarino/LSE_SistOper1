@@ -34,9 +34,9 @@
 
 /*************************************************************************//**
 
-  @file     ej2.1.c
+  @file     ej2.2.c
 
-  @brief    EJERCICIO 2.1 - RTOS 1
+  @brief    EJERCICIO 2.2 - RTOS 1
 
   @author   Marcos Darino (MD)
 
@@ -45,23 +45,27 @@
 
 /**
 
- EJERCICIO 2.1    (Spanish)
+ EJERCICIO 2.2    (Spanish)
 
 Caso   de   uso​
-:   Una   tarea   consumidora   está   bloqueada   esperando   recibir   un   semáforo,   mientras   que  
-una tarea generadora lo liberara cuando genere o descubra un dato. 
+:   Varias   tareas   esperando   un   evento.   Por   ejemplo,   un   cambio   de   estado   del   sistema   que  
+debe ser atendido por varias tareas con prioridades diferentes. 
  
 Ejercicio​
-:   Implementar   una   tarea   que   mida   un   pulsador,   y   libere   un   semáforo   cuando   confirme   el   fin  
-de   la   pulsación.   Implementar   otra   tarea   que   destelle   un   leds   cuando   recibe   el   semáforo.   Esta   última  
-esperará al semáforo indefinidamente. 
+:   Instanciar   3   veces   la   tarea   que   destella   un   led,   cada   una   aplicada   a   un   color   del   led   RGB   y  
+hacer   que   las   tres   tareas   generen   el   destello   cuando   se   reciba   el   semáforo.   Las   tareas   esperaran   al  
+semáforo indefinidamente. 
+ 
+El   semáforo   no   es   más   que   un   mensaje   al   scheduler,   recibido   por   cuantas   tareas   estuvieran  
+esperando   por   él.   Prestar   atención   al   detalle   del   parámetro   de   tarea,   este   debe   indicar   a   cada  
+instancia creada que color le corresponde. 
 
  **/
 
 
 
 
-/** \addtogroup rtos FreeRTOS Ejer2.1
+/** \addtogroup rtos FreeRTOS Ejer1.4
  ** @{ */
 
 /*==================[inclusions]=============================================*/
@@ -128,65 +132,11 @@ static void initHardware(void)
 
 
 
-static void taskReadButton(void * a)
-{
-	
-   button_t  button;
-   
-   //Init the struct
-   button.number=0;
-   button.state=RELEASE;
-   button.time=0;
-   
-
-
-   while(1)
-   {
-        //Delay
-        vTaskDelay(TIME_NOT_REBOUND/portTICK_RATE_MS); 
-        
-        //check if it is press
-        if (!ciaaReadInput(button.number))
-        {
-            button.time++;
-            if (button.time>65000)
-                button.time=65000;
-            if (button.time>TICKS_BUTTON)
-                button.state=PRESS; 
-
-        }
-        else
-        {
-            button.state=RELEASE;
-            if (button.time>TICKS_BUTTON)
-              {
-                xSemaphoreGive(xSemaphore);
-                //take the time of press in mseg
-                buttonTime=(button.time-TICKS_BUTTON)*TIME_NOT_REBOUND;
-              }
-            button.time=0;
-            
-        }
-
-        if(button.state==PRESS)
-          {  
-            ciaaWriteOutput(0,1);  //Led RED ON
-          }
-          else
-          {
-            ciaaWriteOutput(0,0);  //Led RED OFF
-          }  
-        
-
-
-   }
-
-}
-
-
 static void taskBlickLed(void * a)
 {
-    
+    uint8_t *auxP = (uint8_t *)a;
+    uint8_t numLedRGB;
+    numLedRGB=*auxP;
    
     while (1) {
         
@@ -195,33 +145,44 @@ static void taskBlickLed(void * a)
           //ciaaWriteOutput(3,1);  
           //Check if the time is zero, if not blink
           xSemaphoreGive(xSemaphore);
-          if (buttonTime>0)
-          {
-           ciaaToggleOutput(3);  //Led 4 ON
-           vTaskDelay(buttonTime/ portTICK_RATE_MS);
+          ciaaToggleOutput(numLedRGB);  //Led x
+          vTaskDelay(500/ portTICK_RATE_MS);
             
           }    
         
 
         }
         
-        }
+        
 }
 /*==================[external functions definition]==========================*/
 
 int main(void)
 {
     //Start the HW
+  uint8_t numLedRGBred;
+  uint8_t numLedRGBgreen;
+  uint8_t numLedRGBblue;
+
 	initHardware();
   ciaaWriteOutput(3,0); 
   // Create a semaphore
   vSemaphoreCreateBinary(xSemaphore);
-  xSemaphoreTake(xSemaphore,portMAX_DELAY);
+  //xSemaphoreTake(xSemaphore,portMAX_DELAY);
     //Create task to read the button
-	xTaskCreate(taskReadButton, (const char *)"taskReadButton", configMINIMAL_STACK_SIZE*2, 0, tskIDLE_PRIORITY+1, 0);
+	//xTaskCreate(taskReadButton, (const char *)"taskReadButton", configMINIMAL_STACK_SIZE*2, 0, tskIDLE_PRIORITY+1, 0);
     
+  numLedRGBred=0; //LED RED
     //Create task to blick the led
-  xTaskCreate(taskBlickLed, (const char *)"taskReadButton", configMINIMAL_STACK_SIZE*2, 0, tskIDLE_PRIORITY+1, 0);
+  xTaskCreate(taskBlickLed, (const char *)"task", configMINIMAL_STACK_SIZE*2, &numLedRGBred, tskIDLE_PRIORITY+1, 0);
+
+  numLedRGBgreen=1; //LED GREEN
+    //Create task to blick the led
+  xTaskCreate(taskBlickLed, (const char *)"taskReadButton", configMINIMAL_STACK_SIZE*2, &numLedRGBgreen, tskIDLE_PRIORITY+1, 0);
+
+  numLedRGBblue=2; //LED BLUE
+    //Create task to blick the led
+  xTaskCreate(taskBlickLed, (const char *)"taskReadButton", configMINIMAL_STACK_SIZE*2, &numLedRGBblue, tskIDLE_PRIORITY+1, 0);
 
     //Start the Scheduler
 	vTaskStartScheduler();
