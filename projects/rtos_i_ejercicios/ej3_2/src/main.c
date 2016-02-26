@@ -34,7 +34,7 @@
 
 /*************************************************************************//**
 
-  @file     ej3_1.c
+  @file     ej3_2.c
 
   @brief    EJERCICIO 3.1 - RTOS 1
 
@@ -45,24 +45,20 @@
 
 /**
 
- EJERCICIO 3.1    (Spanish)
+ EJERCICIO 3.2  (Spanish)
 
-Este   es   el   uso   más   simple   de   las   colas   del   RTOS:   Los   mensajes   se   pasan   por   copia   dentro   de   la  
-cola, dándole persistencia a los mismos una vez que la tarea productora sale de contexto. 
- 
-Caso de uso​
-: Una tarea manejadora de evento bloquea hasta recibir el mismo. 
- 
-Ejercicio​
-:   Una   tarea   mide   el   tiempo   de   opresión   de   un   pulsador.   Cuando   lo   obtiene   lo   envía   par   cola   a  
-otra tarea que destella un led durante el tiempo recibido. 
+Caso de uso: El mensaje recibido por cola modifica de alguna manera el comportamiento de la tarea
+receptora, pero la misma debe seguir trabajando (no bloquear) aunque no reciba mensajes
+Ejercicio: Una tarea destella continuamente un led, con una frecuencia constante y un ciclo de
+actividad que recibe de otras tareas mediante una cola. La tarea no debe bloquearse, ya que
+mientras no reciba mensajes debe mantener el led titilando.
 
  **/
 
 
 
 
-/** \addtogroup rtos FreeRTOS Ejer3.1
+/** \addtogroup rtos FreeRTOS Ejer3.2
  ** @{ */
 
 /*==================[inclusions]=============================================*/
@@ -113,7 +109,7 @@ static void initHardware(void);
 /*==================[external data definition]===============================*/
 
 //Global Variables
-uint16_t  buttonTime=0;  ///Save the button time press in os ticks
+//uint16_t  buttonTime=0;  ///Save the button time press in os ticks
 
 
 /*==================[internal functions definition]==========================*/
@@ -144,7 +140,7 @@ static void taskReadButton(void * a)
    button.state=RELEASE;
    button.time=0;
    
-
+   uint32_t  buttonTime=0;
 
    while(1)
    {
@@ -168,10 +164,7 @@ static void taskReadButton(void * a)
               {
                 //take the time of press in mseg
                 buttonTime=(button.time-TICKS_BUTTON)*TIME_NOT_REBOUND;
-                uint8_t aux=READY;
-
-
-                xQueueSend( xQueue1, ( void * ) &aux, 0);
+                xQueueSend( xQueue1, ( void * ) &buttonTime, 0);
 
               }
             button.time=0;
@@ -197,20 +190,25 @@ static void taskReadButton(void * a)
 static void taskBlickLed(void * a)
 {
     
-   uint8_t buf=NOT_READY;  //buffer to receive the data
+   uint32_t buttonTime2=0;  //buffer to receive the data
     while (1) {
-        
-        if (xQueueReceive(xQueue1,&buf,0))
-        {  
-          //ciaaWriteOutput(3,1);  
-          //Check if the time is zero, if not blink
-          if (buttonTime>0)
+        xQueueReceive(xQueue1,&buttonTime2,0);
+          
+        //ciaaWriteOutput(3,1);  
+        //Check if the time is zero, if not blink
+        if (buttonTime2>0)
           {
-           ciaaWriteOutput(3,1);  //Led 4 ON
-           vTaskDelay(buttonTime/ portTICK_RATE_MS);
-           ciaaWriteOutput(3,0); 
+           ciaaToggleOutput(3);  //Led 4 ON
+           vTaskDelay(buttonTime2/ portTICK_RATE_MS);
+            ciaaWriteOutput(5,1);
+          }
+        else
+          {
+           ciaaToggleOutput(3);  //Led 4 ON
+           vTaskDelay(500/ portTICK_RATE_MS);
+           ciaaWriteOutput(5,0);
           }    
-        }
+        
 
  
         
@@ -225,7 +223,7 @@ int main(void)
   ciaaWriteOutput(3,0);
 
   //create the queue
-  xQueue1 = xQueueCreate( QUEUE1_SIZE, sizeof(uint8_t) );
+  xQueue1 = xQueueCreate( QUEUE1_SIZE, sizeof(uint32_t) );
 
   if (xQueue1==NULL)
     ciaaWriteOutput(4,1); //if it is not create, turn on the red led
