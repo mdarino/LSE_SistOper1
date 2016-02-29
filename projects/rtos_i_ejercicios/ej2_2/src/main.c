@@ -81,19 +81,6 @@ instancia creada que color le corresponde.
 
 
 /*==================[macros and definitions]=================================*/
-    //BUTTONS STATES:
-    #define PRESS   1  ///Buttons is press
-    #define RELEASE 0  ///Buttons is relaese
-    #define TIME_NOT_REBOUND  10 ///Button delay to check the buttons
-    #define TICKS_BUTTON 2 ///How many TIME_NOT_REBOUND is press
-
-typedef struct  STR_Button
-{
-    uint8_t     state;
-    uint16_t    time;
-    uint8_t     number;
-}button_t;
-
 
 /*==================[internal data declaration]==============================*/
 
@@ -110,8 +97,6 @@ static void initHardware(void);
 
 /*==================[external data definition]===============================*/
 
-//Global Variables
-uint16_t  buttonTime=0;  ///Save the button time press in os ticks
 
 
 /*==================[internal functions definition]==========================*/

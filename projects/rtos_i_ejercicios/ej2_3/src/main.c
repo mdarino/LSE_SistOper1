@@ -85,13 +85,14 @@ cambio el rojo si expira el tiempo de bloqueo.
     //BUTTONS STATES:
     #define PRESS   1  ///Buttons is press
     #define RELEASE 0  ///Buttons is relaese
-    #define TIME_NOT_REBOUND  10 ///Button delay to check the buttons
-    #define TICKS_BUTTON 2 ///How many TIME_NOT_REBOUND is press
+
+    #define UPDATE_BUTTON_TIME 5 ///Time in mseg, who often is checked the button's state    
+    #define TIME_NOT_REBOUND   20 ///Delay to avoid the rebound on the button(in mseg)
 
 typedef struct  STR_Button
 {
     uint8_t     state;
-    uint16_t    time;
+    uint32_t    time;
     uint8_t     number;
 }button_t;
 
@@ -147,27 +148,27 @@ static void taskReadButton(void * a)
 
    while(1)
    {
-        //Delay
-        vTaskDelay(TIME_NOT_REBOUND/portTICK_RATE_MS); 
         
+        //Delay - Who often the task will be entered
+        vTaskDelay(UPDATE_BUTTON_TIME/portTICK_RATE_MS); 
         //check if it is press
         if (!ciaaReadInput(button.number))
         {
-            button.time++;
-            if (button.time>65000)
-                button.time=65000;
-            if (button.time>TICKS_BUTTON)
+            button.time+=UPDATE_BUTTON_TIME;;
+            if (button.time>2000000000)   //Set the limit
+                button.time=2000000000; 
+            if (button.time>TIME_NOT_REBOUND)
                 button.state=PRESS; 
 
         }
         else
         {
             button.state=RELEASE;
-            if (button.time>TICKS_BUTTON)
+            if (button.time>TIME_NOT_REBOUND)
               {
                 xSemaphoreGive(xSemaphore);
                 //take the time of press in mseg
-                buttonTime=(button.time-TICKS_BUTTON)*TIME_NOT_REBOUND;
+                buttonTime=button.time;
               }
             button.time=0;
             
