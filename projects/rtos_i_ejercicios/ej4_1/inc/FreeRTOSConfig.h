@@ -68,9 +68,6 @@
  * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
  * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
  *----------------------------------------------------------*/
-//#define configUSE_TICKLESS_IDLE     1 To low low power, increase the time between systicks
-
-
 
 #define configUSE_PREEMPTION		1
 #define configUSE_IDLE_HOOK			1
