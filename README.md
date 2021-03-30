@@ -1,5 +1,10 @@
-# Workspace
-Embedded software development workspace for microcontrollers.
+##  Real time system I - (RTOS)
+
+Personal resolution of the different practices required in the Subject.
+
+Curse program ([link](https://sites.google.com/site/arquitecturademicros/)) 
+LSE ([link](http://laboratorios.fi.uba.ar/lse/))
+University ([link](http://www.fi.uba.ar/)) Universidad de Buenos Aires
 
 ## Supported targets:
 - LPC1769
